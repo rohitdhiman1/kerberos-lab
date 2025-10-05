@@ -1,0 +1,20 @@
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore macOS folder attributes
+__MACOSX/
+
+# Ignore environment files
+.env
+
+# Ignore other common macOS metadata
+*.swp
+*.swo
+
+# Ignore files created by macOS Finder
+Icon?
+
+# Ignore files created by macOS resource fork
+._*
