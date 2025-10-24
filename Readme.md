@@ -164,3 +164,6 @@ If you want to start a completely fresh KDC instance, you must remove the persis
 # WARNING: Deletes the Kerberos database, all principals, and keytabs
 rm -rf volumes/kdc-db volumes/config volumes/keytabs
 ```
+
+
+
