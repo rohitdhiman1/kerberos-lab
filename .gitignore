@@ -6,8 +6,14 @@
 # Ignore macOS folder attributes
 __MACOSX/
 
-# Ignore environment files
+# Ignore environment files and secrets
 .env
+
+# Volumes and persistent data
+volumes/
+
+# Keytabs
+*.keytab
 
 # Ignore other common macOS metadata
 *.swp
