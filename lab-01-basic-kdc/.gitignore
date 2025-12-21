@@ -1,0 +1,8 @@
+# Environment variables with secrets
+.env
+
+# Persistent volumes
+volumes/
+
+# Keytabs
+*.keytab
