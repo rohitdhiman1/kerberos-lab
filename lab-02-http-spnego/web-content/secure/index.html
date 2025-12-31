@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Area - Kerberos SPNEGO</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.4);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #fff;
+            color: #11998e;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Secure Area - Authentication Successful!</h1>
+        
+        <div class="success">
+            <h2>🎉 Congratulations!</h2>
+            <p>You have successfully authenticated using Kerberos SPNEGO.</p>
+            <p><strong>Your Kerberos ticket was automatically validated by the web server.</strong></p>
+        </div>
+
+        <div class="card">
+            <h3>🔐 What Just Happened?</h3>
+            <ol>
+                <li>Your browser sent your Kerberos ticket in the Authorization header</li>
+                <li>Apache's mod_auth_gssapi module validated it against the service keytab</li>
+                <li>Your principal was authenticated without sending any password</li>
+                <li>This is true Single Sign-On (SSO)!</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>📊 Authentication Details</h3>
+            <p>This page is protected by the <code>/secure</code> location directive.</p>
+            <p><strong>Access Policy:</strong> Any valid Kerberos principal in the EXAMPLE.COM realm</p>
+            <p><strong>Method:</strong> SPNEGO (RFC 4559)</p>
+        </div>
+
+        <div class="card">
+            <h3>🧭 Navigation</h3>
+            <a href="/" class="btn">← Back to Home</a>
+            <a href="/admin/" class="btn">Try Admin Area →</a>
+        </div>
+    </div>
+</body>
+</html>
