@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Area - Kerberos SPNEGO</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .warning {
+            background: rgba(255, 152, 0, 0.4);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #FF9800;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #fff;
+            color: #f5576c;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 Admin Area - Restricted Access</h1>
+        
+        <div class="warning">
+            <h2>⚠️ Restricted Zone</h2>
+            <p>This area requires <strong>specific principal authorization</strong>.</p>
+            <p><strong>Only <code>testuser@EXAMPLE.COM</code> can access this page.</strong></p>
+        </div>
+
+        <div class="card">
+            <h3>🔒 Enhanced Authorization</h3>
+            <p>Unlike the /secure area which accepts any valid principal, this admin area demonstrates:</p>
+            <ul>
+                <li><strong>Principal-based access control</strong></li>
+                <li>Authorization beyond just authentication</li>
+                <li>Role-based access patterns</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>🧪 Test Different Users</h3>
+            <p>Try accessing this page with different principals:</p>
+            <pre><code># This will work
+kinit testuser@EXAMPLE.COM
+curl --negotiate -u : http://web.example.com/admin/
+
+# This will fail with 403 Forbidden
+kinit anotheruser@EXAMPLE.COM
+curl --negotiate -u : http://web.example.com/admin/</code></pre>
+        </div>
+
+        <div class="card">
+            <h3>📝 Apache Configuration</h3>
+            <p>This protection is configured with:</p>
+            <pre><code>&lt;Location "/admin"&gt;
+    AuthType GSSAPI
+    Require user testuser@EXAMPLE.COM
+&lt;/Location&gt;</code></pre>
+        </div>
+
+        <div class="card">
+            <h3>🧭 Navigation</h3>
+            <a href="/" class="btn">← Back to Home</a>
+            <a href="/secure/" class="btn">Secure Area</a>
+        </div>
+    </div>
+</body>
+</html>
