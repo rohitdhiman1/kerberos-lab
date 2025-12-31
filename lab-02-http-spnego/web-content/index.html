@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerberos SPNEGO Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-primary {
+            background: #2196F3;
+        }
+        .btn-primary:hover {
+            background: #0b7dda;
+        }
+        .status {
+            background: rgba(76, 175, 80, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Kerberos SPNEGO Authentication Lab</h1>
+        
+        <div class="card">
+            <h2>Welcome to Lab 02</h2>
+            <p>This lab demonstrates HTTP authentication using Kerberos SPNEGO (Simple and Protected GSSAPI Negotiation Mechanism).</p>
+            <div class="status">
+                <strong>Status:</strong> Public page - No authentication required
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🔓 Public Access</h3>
+            <p>You are viewing a public page. Anyone can access this without authentication.</p>
+        </div>
+
+        <div class="card">
+            <h3>🔐 Protected Resources</h3>
+            <p>Try accessing these protected resources that require Kerberos authentication:</p>
+            <a href="/secure/" class="btn btn-primary">Secure Area (Any Valid User)</a>
+            <a href="/admin/" class="btn">Admin Area (testuser only)</a>
+        </div>
+
+        <div class="card">
+            <h3>📝 How It Works</h3>
+            <ol>
+                <li>Obtain a Kerberos ticket: <code>kinit testuser@EXAMPLE.COM</code></li>
+                <li>Access protected resources - authentication happens automatically</li>
+                <li>Your browser uses SPNEGO to negotiate with the server</li>
+                <li>Apache validates your ticket using the service keytab</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>🧪 Testing Commands</h3>
+            <p>From the client container:</p>
+            <pre><code># Get Kerberos ticket
+kinit testuser@EXAMPLE.COM
+
+# Test with curl
+curl --negotiate -u : http://web.example.com/secure/
+
+# View your ticket
+klist</code></pre>
+        </div>
+    </div>
+</body>
+</html>
