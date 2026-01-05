@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  kdc:
+    image: ubuntu:22.04
+    container_name: kerberos-kdc-lab03
+    hostname: kdc.example.com
+    networks:
+      ssh-kerberos-net:
+        ipv4_address: 172.25.0.10
+    environment:
+      - REALM=${REALM}
+      - KDC_PASSWORD=${KDC_PASSWORD}
+    volumes:
+      - ../../common/config-templates:/config-templates:ro
+      - ../../common/scripts:/scripts:ro
+      - kdc-data:/var/kerberos-data
+    command: /scripts/kdc-init.sh
+    healthcheck:
+      test: ["CMD", "kadmin.local", "-q", "listprincs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ssh-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.ssh
+    container_name: ssh-server
+    hostname: ssh.example.com
+    networks:
+      ssh-kerberos-net:
+        ipv4_address: 172.25.0.20
+    ports:
+      - "${SSH_PORT}:22"
+    environment:
+      - REALM=${REALM}
+      - KDC_HOST=kdc.example.com
+      - HOST_PRINCIPAL=host/ssh.example.com@${REALM}
+    volumes:
+      - ./keytabs:/etc/keytabs
+      - ./ssh-config/sshd_config:/etc/ssh/sshd_config.kerberos:ro
+      - ./krb5.conf:/etc/krb5.conf:ro
+    depends_on:
+      kdc:
+        condition: service_healthy
+    command: /usr/sbin/sshd -D
+
+  client:
+    image: ubuntu:22.04
+    container_name: ssh-client
+    hostname: client.example.com
+    networks:
+      ssh-kerberos-net:
+        ipv4_address: 172.25.0.30
+    environment:
+      - REALM=${REALM}
+      - KDC_HOST=kdc.example.com
+      - SSH_SERVER=ssh.example.com
+      - USER_PRINCIPAL=${USER_PRINCIPAL}
+      - USER_PASSWORD=${USER_PASSWORD}
+    volumes:
+      - ./krb5.conf:/etc/krb5.conf:ro
+      - ./test-scripts:/test-scripts:ro
+      - ./ssh-config/ssh_config:/etc/ssh/ssh_config.d/kerberos.conf:ro
+    depends_on:
+      kdc:
+        condition: service_healthy
+      ssh-server:
+        condition: service_started
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+networks:
+  ssh-kerberos-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
+
+volumes:
+  kdc-data:
