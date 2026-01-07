@@ -1,0 +1,72 @@
+# SSH Server Configuration with Kerberos GSSAPI
+
+# Basic SSH settings
+Port 22
+AddressFamily any
+ListenAddress 0.0.0.0
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Authentication settings
+PermitRootLogin no
+StrictModes yes
+MaxAuthTries 6
+MaxSessions 10
+
+# Enable public key authentication (as fallback)
+PubkeyAuthentication yes
+
+# Enable password authentication (for testing/fallback)
+PasswordAuthentication yes
+
+# GSSAPI (Kerberos) Authentication
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials yes
+GSSAPIStrictAcceptorCheck yes
+
+# Enable credential delegation (forwarding)
+GSSAPIKeyExchange yes
+GSSAPIStoreCredentialsOnRekey yes
+
+# Allow ticket forwarding
+AllowTcpForwarding yes
+GatewayPorts no
+X11Forwarding yes
+X11DisplayOffset 10
+
+# Enable credential forwarding
+AllowAgentForwarding yes
+
+# Kerberos options
+KerberosAuthentication no
+KerberosOrLocalPasswd yes
+KerberosTicketCleanup yes
+
+# PAM authentication
+UsePAM yes
+
+# Accept locale-related environment variables
+AcceptEnv LANG LC_*
+
+# Subsystems
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Override default of no subsystems
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+PermitUserEnvironment no
+Compression delayed
+ClientAliveInterval 0
+ClientAliveCountMax 3
+UseDNS no
+PidFile /var/run/sshd.pid
+MaxStartups 10:30:100
+PermitTunnel no
+ChrootDirectory none
+VersionAddendum none
+
+# Banner
+Banner none

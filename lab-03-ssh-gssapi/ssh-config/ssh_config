@@ -1,0 +1,28 @@
+# SSH Client Configuration for Kerberos GSSAPI
+
+Host *
+    # Enable GSSAPI authentication
+    GSSAPIAuthentication yes
+    GSSAPIDelegateCredentials yes
+    GSSAPIKeyExchange yes
+    GSSAPIRenewalForcesRekey yes
+    
+    # Prefer GSSAPI over other methods
+    PreferredAuthentications gssapi-with-mic,gssapi-keyex,publickey,password
+    
+    # Disable host key checking for lab environment
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    
+    # Connection settings
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    
+    # Disable password prompt if GSSAPI fails (for testing)
+    # PasswordAuthentication no
+    
+    # Forward agent
+    ForwardAgent no
+    
+    # Compression
+    Compression yes
