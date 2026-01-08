@@ -1,0 +1,25 @@
+FROM ubuntu:22.04
+
+ARG REALM
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV REALM=${REALM}
+
+# Install Kerberos KDC and admin server
+RUN apt-get update && apt-get install -y \
+    krb5-kdc \
+    krb5-admin-server \
+    krb5-config \
+    vim \
+    net-tools \
+    iputils-ping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create necessary directories
+RUN mkdir -p /var/kerberos-data /scripts /config
+
+# Expose KDC and kadmin ports
+EXPOSE 88 464 749
+
+CMD ["/scripts/kdc-init.sh"]
