@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  kdc-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.kdc
+      args:
+        REALM: ${REALM_A}
+    container_name: kdc-realm-a
+    hostname: kdc.realm-a.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.10
+    environment:
+      - REALM=${REALM_A}
+      - KDC_PASSWORD=${KDC_PASSWORD_A}
+      - PEER_REALM=${REALM_B}
+      - PEER_KDC=kdc.realm-b.local
+      - TRUST_PASSWORD=${TRUST_PASSWORD}
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./config-a:/config:ro
+      - kdc-a-data:/var/kerberos-data
+    command: /scripts/kdc-init.sh
+    healthcheck:
+      test: ["CMD", "kadmin.local", "-q", "listprincs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kdc-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.kdc
+      args:
+        REALM: ${REALM_B}
+    container_name: kdc-realm-b
+    hostname: kdc.realm-b.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.20
+    environment:
+      - REALM=${REALM_B}
+      - KDC_PASSWORD=${KDC_PASSWORD_B}
+      - PEER_REALM=${REALM_A}
+      - PEER_KDC=kdc.realm-a.local
+      - TRUST_PASSWORD=${TRUST_PASSWORD}
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./config-b:/config:ro
+      - kdc-b-data:/var/kerberos-data
+    command: /scripts/kdc-init.sh
+    healthcheck:
+      test: ["CMD", "kadmin.local", "-q", "listprincs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  service-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    container_name: service-realm-a
+    hostname: service.realm-a.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.15
+    ports:
+      - "${SERVICE_A_PORT}:80"
+    environment:
+      - REALM=${REALM_A}
+      - KDC_HOST=kdc.realm-a.local
+      - SERVICE_PRINCIPAL=HTTP/service.realm-a.local@${REALM_A}
+      - SERVICE_NAME=Service-A
+    volumes:
+      - ./keytabs:/etc/keytabs
+      - ./web-content:/var/www/html:ro
+      - ./apache-config/auth.conf:/etc/apache2/conf-available/auth.conf:ro
+      - ./config-a/krb5.conf:/etc/krb5.conf:ro
+    depends_on:
+      kdc-a:
+        condition: service_healthy
+    command: /bin/bash -c "sleep 5 && apache2ctl -D FOREGROUND"
+
+  service-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    container_name: service-realm-b
+    hostname: service.realm-b.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.25
+    ports:
+      - "${SERVICE_B_PORT}:80"
+    environment:
+      - REALM=${REALM_B}
+      - KDC_HOST=kdc.realm-b.local
+      - SERVICE_PRINCIPAL=HTTP/service.realm-b.local@${REALM_B}
+      - SERVICE_NAME=Service-B
+    volumes:
+      - ./keytabs:/etc/keytabs
+      - ./web-content:/var/www/html:ro
+      - ./apache-config/auth.conf:/etc/apache2/conf-available/auth.conf:ro
+      - ./config-b/krb5.conf:/etc/krb5.conf:ro
+    depends_on:
+      kdc-b:
+        condition: service_healthy
+    command: /bin/bash -c "sleep 5 && apache2ctl -D FOREGROUND"
+
+  client-a:
+    image: ubuntu:22.04
+    container_name: client-realm-a
+    hostname: client.realm-a.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.30
+    environment:
+      - REALM=${REALM_A}
+      - KDC_HOST=kdc.realm-a.local
+      - USER_PRINCIPAL=alice@${REALM_A}
+      - USER_PASSWORD=${USER_PASSWORD_A}
+    volumes:
+      - ./config-a/krb5.conf:/etc/krb5.conf:ro
+      - ./test-scripts:/test-scripts:ro
+    depends_on:
+      kdc-a:
+        condition: service_healthy
+      kdc-b:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  client-b:
+    image: ubuntu:22.04
+    container_name: client-realm-b
+    hostname: client.realm-b.local
+    networks:
+      cross-realm-net:
+        ipv4_address: 172.30.0.40
+    environment:
+      - REALM=${REALM_B}
+      - KDC_HOST=kdc.realm-b.local
+      - USER_PRINCIPAL=bob@${REALM_B}
+      - USER_PASSWORD=${USER_PASSWORD_B}
+    volumes:
+      - ./config-b/krb5.conf:/etc/krb5.conf:ro
+      - ./test-scripts:/test-scripts:ro
+    depends_on:
+      kdc-a:
+        condition: service_healthy
+      kdc-b:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+networks:
+  cross-realm-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+volumes:
+  kdc-a-data:
+  kdc-b-data:
