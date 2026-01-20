@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Realm Access Success</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.4);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .cross-realm {
+            background: rgba(255, 193, 7, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #FFC107;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #fff;
+            color: #11998e;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        .ticket-flow {
+            font-family: monospace;
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Cross-Realm Authentication Successful!</h1>
+        
+        <div class="success">
+            <h2>🎉 You're In!</h2>
+            <p>You have successfully accessed this protected resource.</p>
+        </div>
+
+        <div class="cross-realm" id="authInfo">
+            <h3>🌐 Authentication Details</h3>
+            <p>This page can be accessed by users from <strong>either realm</strong> through the cross-realm trust.</p>
+            <p><strong>Your authenticated identity was verified across realm boundaries!</strong></p>
+        </div>
+
+        <div class="card">
+            <h3>🔐 How Cross-Realm Authentication Works</h3>
+            <div class="ticket-flow">
+1. Client requests service ticket for remote realm service
+   Client (REALM-A) → KDC-A: "I need ticket for HTTP/service.realm-b.local"
+
+2. Local KDC issues referral ticket
+   KDC-A → Client: "Here's a referral ticket: krbtgt/REALM-B.LOCAL@REALM-A.LOCAL"
+
+3. Client contacts remote KDC with referral
+   Client → KDC-B: "I have referral from REALM-A, need service ticket"
+
+4. Remote KDC validates referral and issues service ticket
+   KDC-B → Client: "Here's your ticket: HTTP/service.realm-b.local@REALM-B.LOCAL"
+
+5. Client accesses service with cross-realm ticket
+   Client → Service-B: [Presents service ticket]
+   Service-B: [Validates ticket and grants access]
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🔍 Verify Your Tickets</h3>
+            <p>Run <code>klist</code> to see the tickets acquired during authentication:</p>
+            <pre><code>$ klist
+
+Ticket cache: FILE:/tmp/krb5cc_0
+Default principal: alice@REALM-A.LOCAL
+
+Valid starting     Expires            Service principal
+01/19/26 10:00:00  01/20/26 10:00:00  krbtgt/REALM-A.LOCAL@REALM-A.LOCAL
+01/19/26 10:05:00  01/20/26 10:00:00  krbtgt/REALM-B.LOCAL@REALM-A.LOCAL  ← Referral
+01/19/26 10:05:01  01/20/26 10:00:00  HTTP/service.realm-b.local@REALM-B.LOCAL ← Service</code></pre>
+        </div>
+
+        <div class="card">
+            <h3>📊 Key Concepts Demonstrated</h3>
+            <ul>
+                <li><strong>Trust Relationship:</strong> Both KDCs trust each other's principals</li>
+                <li><strong>Referral Tickets:</strong> Intermediate tickets that bridge realms</li>
+                <li><strong>Service Tickets:</strong> Final tickets for accessing services</li>
+                <li><strong>Transparent Access:</strong> Users don't need to know about realm boundaries</li>
+                <li><strong>Security:</strong> Trust is explicit and controlled by administrators</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>🧪 Try These Experiments</h3>
+            <ol>
+                <li>Access services in both realms with the same ticket cache</li>
+                <li>Compare ticket chains for local vs. cross-realm access</li>
+                <li>Test from both realms (alice and bob)</li>
+                <li>Monitor ticket acquisition with <code>KRB5_TRACE=/dev/stdout kinit</code></li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>🧭 Navigation</h3>
+            <a href="/" class="btn">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Display environment info if available
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const info = document.getElementById('authInfo');
+        
+        if (port === '8081') {
+            info.innerHTML += '<p><strong>Service:</strong> REALM-A.LOCAL (service.realm-a.local)</p>';
+        } else if (port === '8082') {
+            info.innerHTML += '<p><strong>Service:</strong> REALM-B.LOCAL (service.realm-b.local)</p>';
+        }
+    </script>
+</body>
+</html>
