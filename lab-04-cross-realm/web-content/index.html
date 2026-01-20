@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Realm Kerberos Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .realm-a {
+            border-left: 4px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+        .realm-b {
+            border-left: 4px solid #2196F3;
+            background: rgba(33, 150, 243, 0.2);
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .architecture {
+            font-family: monospace;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Cross-Realm Kerberos Authentication</h1>
+        
+        <div class="card">
+            <h2>Lab 04: Multi-Realm Trust</h2>
+            <p>This environment demonstrates Kerberos cross-realm authentication between two independent realms.</p>
+        </div>
+
+        <div class="card realm-a">
+            <h3>🟢 REALM-A.LOCAL</h3>
+            <ul>
+                <li><strong>KDC:</strong> kdc.realm-a.local</li>
+                <li><strong>Service:</strong> service.realm-a.local (Port 8081)</li>
+                <li><strong>User:</strong> alice@REALM-A.LOCAL</li>
+                <li><strong>Client:</strong> client.realm-a.local</li>
+            </ul>
+        </div>
+
+        <div class="card realm-b">
+            <h3>🔵 REALM-B.LOCAL</h3>
+            <ul>
+                <li><strong>KDC:</strong> kdc.realm-b.local</li>
+                <li><strong>Service:</strong> service.realm-b.local (Port 8082)</li>
+                <li><strong>User:</strong> bob@REALM-B.LOCAL</li>
+                <li><strong>Client:</strong> client.realm-b.local</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>🔐 Trust Architecture</h3>
+            <div class="architecture">
+┌──────────────────┐                     ┌──────────────────┐
+│   REALM-A.LOCAL  │◄───── Trust ───────►│   REALM-B.LOCAL  │
+│                  │                     │                  │
+│  KDC-A           │   krbtgt/B@A        │  KDC-B           │
+│  ├─ alice        │   krbtgt/A@B        │  ├─ bob          │
+│  └─ HTTP/svc-a   │                     │  └─ HTTP/svc-b   │
+│                  │                     │                  │
+│  Service-A       │                     │  Service-B       │
+│  (Port 8081)     │                     │  (Port 8082)     │
+└──────────────────┘                     └──────────────────┘
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🧪 Test Scenarios</h3>
+            <ol>
+                <li><strong>Local Authentication:</strong> alice → Service-A (same realm)</li>
+                <li><strong>Cross-Realm:</strong> alice → Service-B (across trust)</li>
+                <li><strong>Reverse Cross-Realm:</strong> bob → Service-A (across trust)</li>
+                <li><strong>Trust Path Verification:</strong> Examine referral tickets</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>📝 Quick Commands</h3>
+            <p><strong>From client-a container:</strong></p>
+            <pre><code># Authenticate as alice
+kinit alice@REALM-A.LOCAL
+
+# Access local service
+curl --negotiate -u : http://service.realm-a.local/secure/
+
+# Access cross-realm service
+curl --negotiate -u : http://service.realm-b.local/secure/
+
+# View tickets (including referral tickets)
+klist</code></pre>
+        </div>
+
+        <div class="card">
+            <h3>🔍 What Makes This Special?</h3>
+            <ul>
+                <li>Two completely independent KDCs</li>
+                <li>Bidirectional trust relationship</li>
+                <li>Automatic referral ticket acquisition</li>
+                <li>Cross-realm service tickets</li>
+                <li>Transparent authentication across boundaries</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>🎯 Protected Resources</h3>
+            <a href="/secure/" class="btn">Access Protected Area</a>
+        </div>
+    </div>
+</body>
+</html>
